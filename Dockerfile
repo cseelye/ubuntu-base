@@ -23,6 +23,7 @@ RUN apt-get update && \
         curl \
         gnupg \
         python3 \
+        python-is-python3 \
     && \
     apt-get autoremove --yes && apt-get clean && rm -rf /var/lib/apt/lists/*
 
