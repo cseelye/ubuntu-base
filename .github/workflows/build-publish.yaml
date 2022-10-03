@@ -44,6 +44,7 @@ jobs:
       - name: test
         run: |
           echo "${{ steps.meta.outputs.labels }}"
+          echo "${{ steps.meta.outputs.tags }}"
 
 #      - name: Build and push docker image
 #        uses: docker/build-push-action@v3
