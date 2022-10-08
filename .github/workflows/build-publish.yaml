@@ -29,6 +29,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set artifact names
+      run: |
+        env
+        if [[ "${{ matrix.ubuntu_version }}" == "22.04" ]]; then
+            echo UBUNTU_NODOT="2204" >> $GITHUB_ENV
+            echo CONTAINER_FLAVOR="latest=true" >> $GITHUB_ENV
+        else
+            echo UBUNTU_NODOT="2004" >> $GITHUB_ENV
+            echo CONTAINER_FLAVOR="" >> $GITHUB_ENV
+        fi
+
       - name: Extract metadata (tags, labels) for Docker image
         id: meta
         uses: docker/metadata-action@v4
@@ -37,9 +48,8 @@ jobs:
             ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value={{date 'YYYYMMDD'}}
-          flavor: |
-            latest=true
+            type=raw,value=${{ env.UBUNTU_NODOT }}.{{date 'YYYYMMDD'}}
+          flavor: ${{ env.CONTAINER_FLAVOR }}
 
       - name: test
         run: |
@@ -52,8 +62,7 @@ jobs:
 #          build-args: |
 #            UBUNTU_VERSION=${{ matrix.ubuntu_version }}
 #          context: .
-#          platforms: linux/amd64,linux/arm64
+#          platforms: linux/amd64,linux/arm64,linux/arm/v7
 #          push: true
 #          tags: ${{ steps.meta.outputs.tags }}
 #          labels: ${{ steps.meta.outputs.labels }}
-
