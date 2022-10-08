@@ -29,16 +29,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set artifact names
-      run: |
-        env
-        if [[ "${{ matrix.ubuntu_version }}" == "22.04" ]]; then
-            echo UBUNTU_NODOT="2204" >> $GITHUB_ENV
-            echo CONTAINER_FLAVOR="latest=true" >> $GITHUB_ENV
-        else
-            echo UBUNTU_NODOT="2004" >> $GITHUB_ENV
-            echo CONTAINER_FLAVOR="" >> $GITHUB_ENV
-        fi
+      - name: Set artifact names
+        run: |
+          env
+          if [[ "${{ matrix.ubuntu_version }}" == "22.04" ]]; then
+              echo UBUNTU_NODOT="2204" >> $GITHUB_ENV
+              echo CONTAINER_FLAVOR="latest=true" >> $GITHUB_ENV
+          else
+              echo UBUNTU_NODOT="2004" >> $GITHUB_ENV
+              echo CONTAINER_FLAVOR="" >> $GITHUB_ENV
+          fi
 
       - name: Extract metadata (tags, labels) for Docker image
         id: meta
