@@ -42,6 +42,7 @@ ENV PATH="$PATH:/root/.local/bin"
 #     mv sources.list /etc/apt/
 
 FROM base AS base-dev
+ARG UBUNTU_VERSION
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 COPY pip.conf /etc/pip.conf
 RUN apt-get update && \
@@ -78,7 +79,11 @@ RUN pip install \
         yapf
 
 # Install VS Code Live Share prerequisites
-RUN curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm /vsls-reqs
+RUN if [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
+        curl -sSfLo libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb && \
+        apt-get install ./libssl.deb; fi && \
+    rm -f libssl.deb && \
+    curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs
 
 # Install docker client binary
 ARG DOCKER_VERSION=20.10.9
