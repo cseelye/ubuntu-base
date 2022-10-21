@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         ubuntu_version: ["22.04", "20.04"]
+        image_suffix: ["", "-dev"]
     steps:
     - name: Check out the repo
       uses: actions/checkout@v2
@@ -45,8 +46,8 @@ jobs:
       uses: docker/metadata-action@v4
       with:
         images: |
-          ${{ github.repository }}
-          ghcr.io/${{ github.repository }}
+          ${{ github.repository }}${{ matrix.image_suffix }}
+          ghcr.io/${{ github.repository }}${{ matrix.image_suffix }}
         tags: |
           type=raw,value=${{ env.TAG_PREFIX }}{{date 'YYYYMMDD'}}
         flavor: ${{ env.CONTAINER_FLAVOR }}
@@ -59,6 +60,7 @@ jobs:
     - name: Build and push docker image
       uses: docker/build-push-action@v3
       with:
+        target: base${{ matrix.image_suffix }}
         build-args: |
           UBUNTU_VERSION=${{ matrix.ubuntu_version }}
         context: .
