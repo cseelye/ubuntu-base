@@ -79,14 +79,14 @@ RUN pip install \
         yapf
 
 # Install VS Code Live Share prerequisites
-RUN if [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
-        if [[ "$(uname -m)" == "aarch64" ]]; then machine=arm64; \
-        elif [[ "$(uname -m)" == "x86_64" ]]; then machine=amd64; \
-        else machine=armhf; fi && \
-        curl -sSfLo libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_${machine}.deb && \
+RUN if [[ ${UBUNTU_VERSION} == "22.04" && "$(uname -m)" == "x86_64" ]]; then \
+        curl -sSfLo libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb && \
         apt-get install ./libssl.deb; fi && \
-    rm -f libssl.deb && \
-    curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs
+        rm -f libssl.deb && \
+        curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs; \
+    elif [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
+        curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs; \
+    fi
 
 # Install docker client binary
 ARG DOCKER_VERSION=20.10.9
