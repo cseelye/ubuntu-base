@@ -84,7 +84,7 @@ RUN if [[ ${UBUNTU_VERSION} == "22.04" && "$(uname -m)" == "x86_64" ]]; then \
         apt-get install ./libssl.deb && \
         rm -f libssl.deb && \
         curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs; \
-    elif [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
+    elif [[ ${UBUNTU_VERSION} == "20.04" ]]; then \
         curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs; \
     fi
 
