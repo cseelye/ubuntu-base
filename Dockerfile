@@ -81,7 +81,7 @@ RUN pip install \
 # Install VS Code Live Share prerequisites
 RUN if [[ ${UBUNTU_VERSION} == "22.04" && "$(uname -m)" == "x86_64" ]]; then \
         curl -sSfLo libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb && \
-        apt-get install ./libssl.deb; fi && \
+        apt-get install ./libssl.deb && \
         rm -f libssl.deb && \
         curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs; \
     elif [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
