@@ -79,13 +79,13 @@ RUN pip install \
         virtualenvwrapper \
         yapf
 
-# Install VS Code server, live share prerequisites, extensions
-COPY vscode.sh /tmp/vscode.sh
-RUN /tmp/vscode.sh
+# Enable using git in the container
+RUN git config --system --add safe.directory '*'
 
 # Install docker client binary
 COPY install-docker.sh /tmp/install-docker.sh
 RUN /tmp/install-docker.sh
 
-# Enable using git in the container
-RUN git config --system --add safe.directory '*'
+# Install VS Code server, live share prerequisites, extensions
+COPY vscode.sh /tmp/vscode.sh
+RUN /tmp/vscode.sh

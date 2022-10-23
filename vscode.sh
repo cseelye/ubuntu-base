@@ -45,6 +45,7 @@ rm -f /tmp/vscs.tgz
 
 # Install extensions
 export PATH=${PATH}:~/.vscode-server/bin/${tag_sha}/bin
+set +e
 finished=0
 until [[ ${finished} == 1 ]]; do
     sleep 5
