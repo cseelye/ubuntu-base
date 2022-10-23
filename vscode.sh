@@ -9,6 +9,9 @@ if [[ ${mach} == "x86_64" ]]; then
 elif [[ ${mach} == "aarch64" ]]; then
     arch1="arm64"
     arch2="arm64"
+else
+    # Skip install on any arch other than amd64 and arm64
+    exit 0
 fi
 
 # For 22.04, we need to get libssl1.1 and manually install
@@ -42,7 +45,7 @@ rm -f /tmp/vscs.tgz
 
 # Install extensions
 export PATH=${PATH}:~/.vscode-server/bin/${tag_sha}/bin
-code-server --install-extension ms-vsliveshare.vsliveshare
+#code-server --install-extension ms-vsliveshare.vsliveshare
 code-server --install-extension ms-python.python
 code-server --install-extension iliazeus.vscode-ansi
 code-server --install-extension eriklynd.json-tools
