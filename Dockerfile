@@ -44,7 +44,7 @@ ENV PATH="$PATH:/root/.local/bin"
 FROM base AS base-dev
 ARG UBUNTU_VERSION
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
-COPY pip.conf /etc/pip.conf
+
 RUN apt-get update && \
     apt-get install --yes \
         ack \
@@ -64,6 +64,7 @@ RUN apt-get update && \
     pip install --upgrade pip
 
 # Python dev tools
+COPY pip.conf /etc/pip.conf
 RUN pip install \
         autopep8 \
         bandit \
@@ -78,28 +79,13 @@ RUN pip install \
         virtualenvwrapper \
         yapf
 
-# Install VS Code stuff in x86 containers
-COPY download-vs-code-server.sh /
-RUN if [[ "$(uname -m)" == "x86_64" ]]; then \
-    if [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
-        curl -sSfLo libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb && \
-        apt-get install ./libssl.deb && \
-        rm -f libssl.deb; \
-    fi && \
-    curl -sSfLo /vsls-reqs https://aka.ms/vsls-linux-prereq-script && chmod +x /vsls-reqs && /vsls-reqs && rm -f /vsls-reqs && \
-    /download-vs-code-server.sh && \
-    export PATH="${PATH}:/root/.vscode-server/bin/$(ls -1 /root/.vscode-server/bin/)/bin" && \
-    code-server --install-extension ms-python.python && \
-    code-server --install-extension iliazeus.vscode-ansi && \
-    code-server --install-extension eriklynd.json-tools && \
-    code-server --install-extension hangxingliu.vscode-systemd-support && \
-    code-server --install-extension cseelye.vscode-allofthem; \
-    fi
-# code-server --install-extension ms-vsliveshare.vsliveshare
+# Install VS Code server, live share prerequisites, extensions
+COPY vscode.sh /tmp/vscode.sh
+RUN /tmp/vscode.sh
 
 # Install docker client binary
-ARG DOCKER_VERSION=20.10.9
-RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar -xz --strip-components=1 -C /usr/local/bin/ docker/docker
+COPY install-docker.sh /tmp/install-docker.sh
+RUN /tmp/install-docker.sh
 
 # Enable using git in the container
 RUN git config --system --add safe.directory '*'
