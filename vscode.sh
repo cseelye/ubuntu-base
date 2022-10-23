@@ -37,6 +37,7 @@ latest_tag=$(curl -fsSL https://api.github.com/repos/${repo}/releases/latest | j
 tag_sha=$(curl -fsSL https://api.github.com/repos/${repo}/git/ref/tags/${latest_tag} | jq -r .object.sha)
 
 # Download and install vscode server
+echo "Installing code-server ${latest_tag} - ${tag_sha}"
 curl -fsSLo /tmp/vscs.tgz "https://update.code.visualstudio.com/commit:${tag_sha}/server-linux-${arch2}/stable"
 mkdir -p ~/.vscode-server/bin/"${tag_sha}"
 pushd ~/.vscode-server/bin/"${tag_sha}"
