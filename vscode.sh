@@ -45,9 +45,14 @@ rm -f /tmp/vscs.tgz
 
 # Install extensions
 export PATH=${PATH}:~/.vscode-server/bin/${tag_sha}/bin
-#code-server --install-extension ms-vsliveshare.vsliveshare
-code-server --install-extension cseelye.vscode-allofthem
-code-server --install-extension ms-python.python
-code-server --install-extension iliazeus.vscode-ansi
-code-server --install-extension eriklynd.json-tools
-code-server --install-extension hangxingliu.vscode-systemd-support
+finished=0
+until [[ ${finished} == 1 ]]; do
+    sleep 5
+    #code-server --install-extension ms-vsliveshare.vsliveshare
+    code-server --install-extension cseelye.vscode-allofthem
+    code-server --install-extension ms-python.python
+    code-server --install-extension iliazeus.vscode-ansi
+    code-server --install-extension eriklynd.json-tools
+    code-server --install-extension hangxingliu.vscode-systemd-support
+    finished=1
+done
