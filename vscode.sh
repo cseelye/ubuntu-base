@@ -12,9 +12,13 @@ elif [[ ${mach} == "aarch64" ]]; then
 fi
 
 # For 22.04, we need to get libssl1.1 and manually install
-if [[ ${UBUNTU_VERSION} == "22.04" ]]; then \
-    curl -sSfLo /tmp/libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_${arch1}.deb
-    apt-get install /tmp/libssl.deb
+if [[ ${UBUNTU_VERSION} == "22.04" ]]; then
+    if [[ ${mach} == "x86_64" ]]; then
+        curl -sSfLo /tmp/libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_${arch1}.deb
+    elif [[ ${mach} == "aarch64" ]]; then
+        curl -sSfLo /tmp/libssl.deb http://launchpadlibrarian.net/475575244/libssl1.1_1.1.1f-1ubuntu2_${arch1}.deb
+    fi
+    apt-get install -y /tmp/libssl.deb
     rm -f /tmp/libssl.deb
 fi
 
@@ -24,13 +28,13 @@ chmod +x /tmp/vsls-reqs
 /tmp/vsls-reqs
 rm -f /vsls-reqs
 
-# Install VS Code server
+# Get the latest vscode server version
 repo="microsoft/vscode"
 latest_tag=$(curl -fsSL https://api.github.com/repos/${repo}/releases/latest | jq -r .tag_name)
 tag_sha=$(curl -fsSL https://api.github.com/repos/${repo}/git/ref/tags/${latest_tag} | jq -r .object.sha)
 
+# Download and install vscode server
 curl -fsSLo /tmp/vscs.tgz "https://update.code.visualstudio.com/commit:${tag_sha}/server-linux-${arch2}/stable"
-
 mkdir -p ~/.vscode-server/bin/"${tag_sha}"
 pushd ~/.vscode-server/bin/"${tag_sha}"
 tar xzf /tmp/vscs.tgz --no-same-owner --strip-components=1
