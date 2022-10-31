@@ -28,33 +28,42 @@ fi
 # Install live share prerequisites
 curl -sSfLo /tmp/vsls-reqs https://aka.ms/vsls-linux-prereq-script
 chmod +x /tmp/vsls-reqs
-/tmp/vsls-reqs
+/tmp/vsls-reqs | sed -u 's/^/vsls | /'
 rm -f /vsls-reqs
 
-# Get the latest vscode server version
+# Get the most recent version tags from the vscode repo
 repo="microsoft/vscode"
-latest_tag=$(curl -fsSL https://api.github.com/repos/${repo}/releases/latest | jq -r .tag_name)
-tag_sha=$(curl -fsSL https://api.github.com/repos/${repo}/git/ref/tags/${latest_tag} | jq -r .object.sha)
+version_count=3 # Get the most recent 3 versions
+all_tags=$(git ls-remote --tags https://github.com/${repo}.git | grep 'refs/tags/[0-9]')
+recent_tags=($(echo "${all_tags}" | sed 's|.*/||' |  sort -rV | head -n${version_count}))
+ext_installed=0
+for tag_ver in "${recent_tags[@]}"; do
+    tag_sha=$(echo "${all_tags}" | grep "${tag_ver}" | awk '{print $1}')
 
-# Download and install vscode server
-echo "Installing code-server ${latest_tag} - ${tag_sha}"
-curl -fsSLo /tmp/vscs.tgz "https://update.code.visualstudio.com/commit:${tag_sha}/server-linux-${arch2}/stable"
-mkdir -p ~/.vscode-server/bin/"${tag_sha}"
-pushd ~/.vscode-server/bin/"${tag_sha}"
-tar xzf /tmp/vscs.tgz --no-same-owner --strip-components=1
-rm -f /tmp/vscs.tgz
-
-# Install extensions
-export PATH=${PATH}:~/.vscode-server/bin/${tag_sha}/bin
-set +e
-finished=0
-until [[ ${finished} == 1 ]]; do
-    sleep 5
-    #code-server --install-extension ms-vsliveshare.vsliveshare
-    code-server --install-extension cseelye.vscode-allofthem
-    code-server --install-extension ms-python.python
-    code-server --install-extension iliazeus.vscode-ansi
-    code-server --install-extension eriklynd.json-tools
-    code-server --install-extension hangxingliu.vscode-systemd-support
-    finished=1
+    echo "Installing code-server ${tag_ver} - ${tag_sha}"
+    curl -fsSLo /tmp/vscs.tgz "https://update.code.visualstudio.com/commit:${tag_sha}/server-linux-${arch2}/stable"
+    mkdir -p ~/.vscode-server/bin/"${tag_sha}"
+    pushd ~/.vscode-server/bin/"${tag_sha}" >/dev/null
+    tar xzf /tmp/vscs.tgz --no-same-owner --strip-components=1
+    popd >/dev/null
+    rm -f /tmp/vscs.tgz
+    # Install extensions
+    if [[ ${ext_installed} -eq 0 ]]; then
+        (
+        export PATH=${PATH}:~/.vscode-server/bin/${tag_sha}/bin
+        set +e
+        finished=0
+        until [[ ${finished} == 1 ]]; do
+            sleep 5
+            #code-server --install-extension ms-vsliveshare.vsliveshare
+            code-server --install-extension cseelye.vscode-allofthem
+            code-server --install-extension ms-python.python
+            code-server --install-extension iliazeus.vscode-ansi
+            code-server --install-extension eriklynd.json-tools
+            code-server --install-extension hangxingliu.vscode-systemd-support
+            finished=1
+        done
+        ) | sed -u 's/^/    /'
+        ext_installed=1
+    fi
 done
