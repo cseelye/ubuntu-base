@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         ubuntu_version: ["22.04", "20.04"]
-        image_suffix: ["", "-dev"]
+        image_suffix: ["", "-dev", "-ansible-dev"]
     steps:
     - name: Check out the repo
       uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set artifact names
+    - name: Set artifact names and targets
       run: |
         env
         if [[ "${{ matrix.ubuntu_version }}" == "22.04" ]]; then
@@ -39,6 +39,12 @@ jobs:
         else
             echo TAG_PREFIX="2004." >> $GITHUB_ENV
             echo CONTAINER_FLAVOR="" >> $GITHUB_ENV
+        fi
+
+        if [[ "${{ matrix.image_suffix }}" == *"-dev" ]]; then
+            echo "IMAGE_TARGETS=linux/amd64,linux/arm64" >> $GITHUB_ENV
+        else
+            echo "IMAGE_TARGETS=linux/amd64,linux/arm64,linux/arm/v7" >> $GITHUB_ENV
         fi
 
     - name: Extract metadata (tags, labels) for Docker image
@@ -64,7 +70,7 @@ jobs:
         build-args: |
           UBUNTU_VERSION=${{ matrix.ubuntu_version }}
         context: .
-        platforms: linux/amd64,linux/arm64,linux/arm/v7
+        platforms: ${{ env.IMAGE_TARGETS }}
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

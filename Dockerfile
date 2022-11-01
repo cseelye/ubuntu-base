@@ -1,10 +1,22 @@
 ARG UBUNTU_VERSION=20.04
 
+#
+# base target - the base image
+#
 FROM ubuntu:${UBUNTU_VERSION} as base
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ARG UBUNTU_VERSION
 
 # Configure apt to never install recommended packages and do not prompt for user input
 RUN printf 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";\n' >> /etc/apt/apt.conf.d/01norecommends
 ARG DEBIAN_FRONTEND=noninteractive
+
+# Hardcoded mirrors close to me previously selected using apt-select
+COPY sources.list* /tmp/
+RUN if [[ $(uname -m) == "x86_64" && ${UBUNTU_VERSION} == "22.04" ]]; then \
+        mv /tmp/sources.list /etc/apt/sources.list; \
+    fi; \
+    rm -f /tmp/sources.list*
 
 # Set locale and timezone
 RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
@@ -29,21 +41,13 @@ RUN apt-get update && \
 
 ENV PATH="$PATH:/root/.local/bin"
 
-# # Install and run apt-select
-# RUN pip3 install \
-#         --no-cache-dir \
-#         --upgrade \
-#         --compile \
-#         --user \
-#         apt-select \
-#     && \
-#     apt-select && \
-#     cp /etc/apt/sources.list /etc/apt/sources.list.backup && \
-#     mv sources.list /etc/apt/
 
+#
+# base-dev target - a common base image for development containers
+#
 FROM base AS base-dev
-ARG UBUNTU_VERSION
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ARG UBUNTU_VERSION
 
 RUN apt-get update && \
     apt-get install --yes \
@@ -76,8 +80,11 @@ RUN pip install \
         pydocstyle \
         pylint \
         pytest \
-        virtualenvwrapper \
         yapf
+COPY pylintrc /etc/pylintrc
+
+ENV TERM=xterm-256color
+COPY bashrc /root/.bashrc
 
 # Enable using git in the container
 RUN git config --system --add safe.directory '*'
@@ -89,3 +96,25 @@ RUN /tmp/install-docker.sh
 # Install VS Code server, live share prerequisites, extensions
 COPY vscode.sh /tmp/vscode.sh
 RUN /tmp/vscode.sh
+
+ENTRYPOINT []
+CMD ["/bin/bash"]
+
+
+#
+# base-ansible-dev target - extended dev container for ansible work
+#
+FROM base-dev AS base-ansible-dev
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+
+# Install latest ansible and ansible-lint
+RUN pip install ansible ansible-lint jmespath
+
+# # Create virtualenvs for other versions of ansible
+# RUN pip install virtualenvwrapper
+# ENV VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3 VIRTUALENVWRAPPER_VIRTUALENV=/root/.local/bin/virtualenv
+
+# # Ansible 2.12
+# RUN source /root/.local/bin/virtualenvwrapper.sh && \
+#     mkvirtualenv ansible-2.12 && \
+#     pip install --no-user ansible==5.10.0 jmespath
