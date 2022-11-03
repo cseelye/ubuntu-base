@@ -41,6 +41,7 @@ for tag_ver in "${recent_tags[@]}"; do
     tag_sha=$(echo "${all_tags}" | grep "${tag_ver}" | awk '{print $1}')
 
     echo "Installing code-server ${tag_ver} - ${tag_sha}"
+    set -x
     curl -fsSLo /tmp/vscs.tgz "https://update.code.visualstudio.com/commit:${tag_sha}/server-linux-${arch2}/stable"
     mkdir -p ~/.vscode-server/bin/"${tag_sha}"
     pushd ~/.vscode-server/bin/"${tag_sha}" >/dev/null
