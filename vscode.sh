@@ -58,6 +58,7 @@ for tag_ver in "${recent_tags[@]}"; do
             #code-server --install-extension ms-vsliveshare.vsliveshare
             code-server --install-extension cseelye.vscode-allofthem
             code-server --install-extension ms-python.python
+            code-server --install-extension ms-python.vscode-pylance
             code-server --install-extension iliazeus.vscode-ansi
             code-server --install-extension eriklynd.json-tools
             code-server --install-extension hangxingliu.vscode-systemd-support
