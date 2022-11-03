@@ -1,0 +1,30 @@
+{
+    "telemetry.telemetryLevel": "off",
+    "redhat.telemetry.enabled": false,
+    "dev.containers.copyGitConfig": true,
+    "ansible.validation.lint.enabled": false,
+    "editor.rulers": [
+        120
+    ],
+    "editor.formatOnSave": true,
+    "editor.trimAutoWhitespace": true,
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true,
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true
+    },
+    "[yaml]": {
+        "editor.tabSize": 2
+    },
+    "terminal.integrated.scrollback": 10000,
+    "python.analysis.autoImportCompletions": false,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "python.testing.pytestArgs": [],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.defaultInterpreterPath": "/usr/bin/python3",
+    "liveshare.showInStatusBar": "whileCollaborating",
+    "github.gitAuthentication": false,
+}
