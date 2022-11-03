@@ -32,15 +32,19 @@ chmod +x /tmp/vsls-reqs
 rm -f /vsls-reqs
 
 # Get the most recent version tags from the vscode repo
+set -x
 repo="microsoft/vscode"
 version_count=3 # Get the most recent 3 versions
 all_tags=$(git ls-remote --tags https://github.com/${repo}.git | grep 'refs/tags/[0-9]')
 recent_tags=($(echo "${all_tags}" | sed 's|.*/||' | grep -v '\^' | sort -rV | head -n${version_count}))
 ext_installed=0
 for tag_ver in "${recent_tags[@]}"; do
-    tag_sha=$(echo "${all_tags}" | grep "${tag_ver}\^{}" | awk '{print $1}')
-    if [[ -z ${tag_sha} ]]; then
-        tag_sha=$(echo "${all_tags}" | grep "${tag_ver}" | awk '{print $1}')
+    # Account for both lightweight and annotated tags
+    lines=$(echo "${all_tags}" | grep "${tag_ver}")
+    if [[ $(echo "${lines}" | wc -l) -eq 1 ]]; then
+        tag_sha=$(echo "${lines}" | awk '{print $1}')
+    else
+        tag_sha=$(echo "${lines}" | grep "${tag_ver}\^{}" | awk '{print $1}')
     fi
     echo "Installing code-server ${tag_ver} - ${tag_sha}"
     curl -fsSLo /tmp/vscs.tgz "https://update.code.visualstudio.com/commit:${tag_sha}/server-linux-${arch2}/stable"
