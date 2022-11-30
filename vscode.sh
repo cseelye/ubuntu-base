@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euETo pipefail
 shopt -s inherit_errexit
-shopt -s lastpipe
 
 mach=$(uname -m)
 if [[ ${mach} == "x86_64" ]]; then
@@ -87,5 +86,5 @@ extensions=(
 
 export PATH=${PATH}:~/.vscode-server/bin/${newest_ver}/bin
 for extname in "${extensions[@]}"; do
-    code-server --install-extension ${extname} || success=0
+    code-server --install-extension ${extname}
 done
